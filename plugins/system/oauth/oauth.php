@@ -59,11 +59,26 @@ class PlgSystemOauth extends JPlugin
                         $data = $app->getUserState('users.login.form.data', array());
                         $app->setUserState('users.login.form.data', array());
 
-                        if ($return = JArrayHelper::getValue($data, 'return')) {
-                            $app->redirect(JRoute::_(base64_decode($return), false));
+                        $user = JFactory::getUser();
+
+                        if ($this->params->get('review_profile', false) && !(bool)$user->getParam("profile.reviewed", false)) {
+                            $redirect = 'index.php?option=com_users&view=profile&layout=edit';
+
+                            if ($return) {
+                                $redirect .= '&return='.$return;
+                            }
+
+                            $user->setParam('profile.reviewed', (int)true);
+                            $user->save();
                         } else {
-                            $app->redirect(JRoute::_(JUri::current(), false));
+                            if ($return = JArrayHelper::getValue($data, 'return')) {
+                                $redirect = base64_decode($return);
+                            } else {
+                                $redirect = JUri::current();
+                            }
                         }
+
+                        $app->redirect(JRoute::_($redirect, false));
                     } else {
                         $app->redirect(JRoute::_('index.php?option=com_users&view=login', false));
                     }
