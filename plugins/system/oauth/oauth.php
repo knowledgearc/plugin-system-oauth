@@ -61,8 +61,18 @@ class PlgSystemOauth extends JPlugin
 
                         $user = JFactory::getUser();
 
-                        if ($this->params->get('review_profile', false) && !(bool)$user->getParam("profile.reviewed", false)) {
-                            $redirect = 'index.php?option=com_users&view=profile&layout=edit';
+                        if ($this->params->get('review_profile', false) &&
+                            !(bool)$user->getParam("profile.reviewed", false)) {
+                            $item = JFactory::getApplication()->getMenu('site')->getItems(
+                                array('link'),
+                                array('index.php?option=com_users&view=profile&layout=edit'),
+                                true);
+
+                            if ($item) {
+                                $redirect = 'index.php?Itemid='.$item->id;
+                            } else {
+                                $redirect = 'index.php?option=com_users&view=profile&layout=edit';
+                            }
 
                             if ($return) {
                                 $redirect .= '&return='.$return;
